@@ -1,4 +1,4 @@
-name: CI/CD Pipeline for Iris Regression Web App
+name: CI/CD Pipeline for Iris Prediction App
 
 on:
   push:
@@ -20,8 +20,8 @@ jobs:
       - name: 📦 Install Dependencies
         run: pip install -r requirements.txt
 
-      - name: 🧠 Test Training Step
-        run: python app.py & sleep 5 && echo "Training verified."
+      - name: 🧠 Test Web App Training
+        run: python app.py & sleep 5 && echo "Web app test done."
 
       - name: 🐳 Build Docker Image
         run: docker build -t iris-web-app .
@@ -29,4 +29,4 @@ jobs:
       - name: 🚀 Run Docker Container
         run: |
           docker run -d -p 5000:5000 iris-web-app
-          echo "Container is running at http://localhost:5000"
+          echo "App is live at http://localhost:5000"

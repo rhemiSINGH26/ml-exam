@@ -1,28 +1,44 @@
-# app.py
-from flask import Flask, render_template
+from flask import Flask, render_template, request
 from sklearn.datasets import load_iris
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LinearRegression
-from sklearn.metrics import mean_squared_error
+import numpy as np
 
 app = Flask(__name__)
 
+# Load and train the model once at startup
+iris = load_iris()
+X = iris.data
+y = iris.target
+
+model = LinearRegression()
+model.fit(X, y)
+
 @app.route('/')
 def home():
-    # Load and train model
-    iris = load_iris()
-    X = iris.data
-    y = iris.target
+    return render_template('index.html', result=None)
 
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+@app.route('/predict', methods=['POST'])
+def predict():
+    try:
+        # Get user input from form
+        sepal_length = float(request.form['sepal_length'])
+        sepal_width = float(request.form['sepal_width'])
+        petal_length = float(request.form['petal_length'])
+        petal_width = float(request.form['petal_width'])
 
-    model = LinearRegression()
-    model.fit(X_train, y_train)
-    y_pred = model.predict(X_test)
-    mse = mean_squared_error(y_test, y_pred)
+        # Prepare input and predict
+        features = np.array([[sepal_length, sepal_width, petal_length, petal_width]])
+        prediction = model.predict(features)[0]
 
-    # Render web page with result
-    return render_template('index.html', mse=round(mse, 4))
+        # Convert numeric output to nearest class
+        class_index = int(round(prediction))
+        class_name = iris.target_names[class_index]
+
+        return render_template('index.html', result=f"Predicted Iris species: {class_name}")
+
+    except Exception as e:
+        return render_template('index.html', result=f"Error: {str(e)}")
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)

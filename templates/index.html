@@ -2,26 +2,56 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Iris Regression Result</title>
+    <title>Iris Prediction App</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: #f8f9fa;
+            background-color: #eef1f5;
             text-align: center;
-            margin-top: 100px;
+            margin-top: 60px;
         }
-        h1 {
+        form {
+            background: white;
+            display: inline-block;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        input {
+            margin: 8px;
+            padding: 6px;
+            width: 180px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        h2 {
             color: #007bff;
-        }
-        p {
-            font-size: 1.3em;
-            color: #333;
         }
     </style>
 </head>
 <body>
-    <h1>Iris Linear Regression Model</h1>
-    <p>✅ Training completed successfully!</p>
-    <p><strong>Mean Squared Error:</strong> {{ mse }}</p>
+    <h1>Iris Flower Predictor 🌸</h1>
+    <form action="/predict" method="post">
+        <input type="number" step="any" name="sepal_length" placeholder="Sepal Length (cm)" required><br>
+        <input type="number" step="any" name="sepal_width" placeholder="Sepal Width (cm)" required><br>
+        <input type="number" step="any" name="petal_length" placeholder="Petal Length (cm)" required><br>
+        <input type="number" step="any" name="petal_width" placeholder="Petal Width (cm)" required><br>
+        <button type="submit">Predict</button>
+    </form>
+
+    {% if result %}
+        <h2>{{ result }}</h2>
+    {% endif %}
 </body>
 </html>
