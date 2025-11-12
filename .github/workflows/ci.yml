@@ -1,32 +1,48 @@
-name: CI/CD Pipeline for Iris Prediction App
+name: CI/CD ML Pipeline
 
-on:
-  push:
-    branches: [ main ]
+on: [push]
 
 jobs:
-  iris_pipeline:
+  train:
     runs-on: ubuntu-latest
-
     steps:
-      - name: 🧾 Checkout Repository
-        uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-      - name: 🐍 Set up Python
-        uses: actions/setup-python@v5
+      - name: Set up Python
+        uses: actions/setup-python@v4
         with:
-          python-version: '3.9'
+          python-version: 3.9
 
-      - name: 📦 Install Dependencies
-        run: pip install -r requirements.txt
-
-      - name: 🧠 Test Web App Training
-        run: python app.py & sleep 5 && echo "Web app test done."
-
-      - name: 🐳 Build Docker Image
-        run: docker build -t iris-web-app .
-
-      - name: 🚀 Run Docker Container
+      - name: Install dependencies
         run: |
-          docker run -d -p 5000:5000 iris-web-app
-          echo "App is live at http://localhost:5000"
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Train model
+        run: python train.py
+
+      - name: Upload model artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: model-artifact
+          path: random_forest_model.pkl
+
+  deploy:
+    needs: train
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Download model artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: model-artifact
+          path: .
+
+      - name: Build Docker image
+        run: docker build -t ml-flask-app .
+
+      - name: Run Docker container
+        run: docker run -d -p 5000:5000 --name ml_container ml-flask-app
